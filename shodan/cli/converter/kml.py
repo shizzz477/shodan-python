@@ -1,51 +1,51 @@
+from converter.base import Converter
+from helpers import iterate_files
 
-from .base import Converter
-from ...helpers import iterate_files
 
 class KmlConverter(Converter):
-    
-    def header(self):
-        self.fout.write("""<?xml version="1.0" encoding="UTF-8"?>
+	def header(self):
+		self.fout.write("""<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>""")
-    
-    def footer(self):
-        self.fout.write("""</Document></kml>""")
-    
-    def process(self, files):
-        # Write the header
-        self.header()
-        
-        hosts = {}
-        for banner in iterate_files(files):
-            ip = banner.get('ip_str', banner.get('ipv6', None))
-            if not ip:
-                continue
-    
-            if ip not in hosts:
-                hosts[ip] = banner
-                hosts[ip]['ports'] = []
-    
-            hosts[ip]['ports'].append(banner['port'])
-    
-        for ip, host in iter(hosts.items()):
-            self.write(host)
-        
-        self.footer()
-            
-    
-    def write(self, host):
-        try:
-            ip = host.get('ip_str', host.get('ipv6', None))
-            lat, lon = host['location']['latitude'], host['location']['longitude']
 
-            placemark = '<Placemark><name><![CDATA[<h1 style="margin-bottom:0;padding-bottom:0;font-size:1.5em">{}</h1>]]></name>'.format(ip)
-            placemark += '<description><![CDATA['
+	def footer(self):
+		self.fout.write("""</Document></kml>""")
 
-            if 'hostnames' in host and host['hostnames']:
-                placemark += '<div><a style="color: #999;margin-top:-10px;padding-top:0;" href="http://{0}" target="_blank">{0}</a></div>'.format(host['hostnames'][0])
+	def process(self, files):
+		# Write the header
+		self.header()
 
-            test = """
+		hosts = {}
+		for banner in iterate_files(files):
+			ip = banner.get('ip_str', banner.get('ipv6', None))
+			if not ip:
+				continue
+
+			if ip not in hosts:
+				hosts[ip] = banner
+				hosts[ip]['ports'] = []
+
+			hosts[ip]['ports'].append(banner['port'])
+
+		for ip, host in iter(hosts.items()):
+			self.write(host)
+
+		self.footer()
+
+	def write(self, host):
+		try:
+			ip = host.get('ip_str', host.get('ipv6', None))
+			lat, lon = host['location']['latitude'], host['location']['longitude']
+
+			placemark = '<Placemark><name><![CDATA[<h1 style="margin-bottom:0;padding-bottom:0;font-size:1.5em">{}</h1>]]></name>'.format(
+				ip)
+			placemark += '<description><![CDATA['
+
+			if 'hostnames' in host and host['hostnames']:
+				placemark += '<div><a style="color: #999;margin-top:-10px;padding-top:0;" href="http://{0}" target="_blank">{0}</a></div>'.format(
+					host['hostnames'][0])
+
+			test = """
     <table>
         <tbody>
           <tr>
@@ -66,10 +66,10 @@ class KmlConverter(Converter):
     <ul>
             """
 
-            placemark += '<h2>Ports</h2><ul>'
+			placemark += '<h2>Ports</h2><ul>'
 
-            for port in host['ports']:
-                placemark += """
+			for port in host['ports']:
+				placemark += """
                     <li style="background-color: #1CA8DD;
                     color: #FFF;
                     float: left;
@@ -89,9 +89,9 @@ class KmlConverter(Converter):
                         </li>
                 """.format(port)
 
-            placemark += '</ul><div style="clear:both"></div>'
+			placemark += '</ul><div style="clear:both"></div>'
 
-            placemark += """
+			placemark += """
                 <div style="text-align:center"><a href="https://www.shodan.io/host/{0}" style="display: inline-block;
                     padding: 4px 10px;
                     margin-bottom: 0px;
@@ -118,10 +118,10 @@ class KmlConverter(Converter):
                     <div>powered by <a href="https://www.shodan.io" target="_blank">Shodan</a></div>
             """.format(ip)
 
-            placemark += ']]></description>'
-            placemark += '<Point><coordinates>{},{}</coordinates></Point>'.format(lon, lat)
-            placemark += '</Placemark>'
+			placemark += ']]></description>'
+			placemark += '<Point><coordinates>{},{}</coordinates></Point>'.format(lon, lat)
+			placemark += '</Placemark>'
 
-            self.fout.write(placemark.encode('utf-8'))
-        except Exception as e:
-            pass
+			self.fout.write(placemark.encode('utf-8'))
+		except Exception as e:
+			pass

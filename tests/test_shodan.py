@@ -1,14 +1,14 @@
 import unittest
+
 import shodan
 
 try:
-    basestring
+	basestring
 except NameError:
-    basestring = str
+	basestring = str
 
 
 class ShodanTests(unittest.TestCase):
-
 	api = None
 	FACETS = [
 		'port',
@@ -154,4 +154,4 @@ class ShodanTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+	unittest.main()
